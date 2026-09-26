@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.geolayer3d.lite" ExtensionBundleVersion="1.0.0" ExtensionBundleName="GeoLayer3DLite">
+  <ExtensionList>
+    <Extension Id="com.geolayer3d.lite.panel" Version="1.0.0">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./index.html</MainPath>
+          <ScriptPath>./jsx/bridge.jsx</ScriptPath>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+      </DispatchInfo>
+    </Extension>
+  </ExtensionList>
+</ExtensionManifest>
