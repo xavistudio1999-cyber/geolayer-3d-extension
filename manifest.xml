@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.geolayer3d.lite" ExtensionBundleVersion="1.0.0" ExtensionBundleName="GeoLayer3DLite">
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.geolayer3d.ae" ExtensionBundleVersion="1.0.0" ExtensionBundleName="GeoLayer3D">
   <ExtensionList>
-    <Extension Id="com.geolayer3d.lite.panel" Version="1.0.0">
+    <Extension Id="com.geolayer3d.ae.panel" Version="1.0.0">
       <DispatchInfo>
         <Resources>
           <MainPath>./index.html</MainPath>
@@ -10,6 +10,21 @@
         <Lifecycle>
           <AutoVisible>true</AutoVisible>
         </Lifecycle>
+        <CEFCommandLine>
+          <Parameter>--enable-nodejs</Parameter>
+          <Parameter>--allow-file-access-from-files</Parameter>
+          <Parameter>--disable-web-security</Parameter>
+        </CEFCommandLine>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>GeoLayer 3D</Menu>
+          <Geometry>
+            <Size>
+              <Height>760</Height>
+              <Width>420</Width>
+            </Size>
+          </Geometry>
+        </UI>
       </DispatchInfo>
     </Extension>
   </ExtensionList>

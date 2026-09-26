@@ -10,9 +10,9 @@ const port = process.env.PORT || 4173;
 app.use(express.static(path.join(__dirname)));
 
 app.get("/health", (_, res) => {
-  res.json({ ok: true, service: "geolayer-3d-lite" });
+  res.json({ ok: true, service: "geolayer-3d" });
 });
 
 app.listen(port, () => {
-  console.log(`GeoLayer 3D Lite running at http://localhost:${port}`);
+  console.log(`GeoLayer 3D preview running at http://localhost:${port}`);
 });

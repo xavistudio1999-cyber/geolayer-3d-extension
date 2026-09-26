@@ -1,4 +1,4 @@
-const initialRoute = [
+const route = [
   { lat: 40.7128, lng: -74.006, speed: 36, heading: 87, altitude: 120 },
   { lat: 40.7148, lng: -74.0045, speed: 42, heading: 92, altitude: 118 },
   { lat: 40.7172, lng: -74.0028, speed: 48, heading: 105, altitude: 125 },
@@ -10,8 +10,7 @@ const state = {
   map: null,
   marker: null,
   polyline: null,
-  route: initialRoute,
-  index: 0,
+  routeIndex: 0,
   live: false
 };
 
@@ -21,12 +20,13 @@ function updateStats(point) {
   document.getElementById("altitudeValue").textContent = `${Math.round(point.altitude)} m`;
 }
 
-function syncAE(payload) {
+function toAE(data) {
   if (window.__AEBridge && typeof window.__AEBridge.send === "function") {
-    window.__AEBridge.send(payload);
-  } else {
-    console.log("AE bridge unavailable:", payload);
+    window.__AEBridge.send(data);
+    return;
   }
+
+  console.log("AE bridge unavailable. Payload:", data);
 }
 
 function applyMapControls() {
@@ -45,7 +45,7 @@ function applyMapControls() {
 
   if (state.marker) state.marker.setPosition(center);
 
-  syncAE({
+  toAE({
     type: "LOCATION",
     lat: center.lat,
     lng: center.lng,
@@ -56,14 +56,13 @@ function applyMapControls() {
 }
 
 function buildRoute() {
-  if (!state.map) return;
+  const path = route.map((point) => ({ lat: point.lat, lng: point.lng }));
 
-  const path = state.route.map((p) => ({ lat: p.lat, lng: p.lng }));
   state.polyline = new google.maps.Polyline({
     path,
     geodesic: true,
     strokeColor: "#67e8f9",
-    strokeOpacity: 0.9,
+    strokeOpacity: 0.95,
     strokeWeight: 4,
     map: state.map
   });
@@ -81,17 +80,16 @@ function setMapType() {
 function tickLive() {
   if (!state.live) return;
 
-  const point = state.route[state.index % state.route.length];
+  const point = route[state.routeIndex % route.length];
   const next = { lat: point.lat, lng: point.lng };
 
   document.getElementById("latInput").value = point.lat;
   document.getElementById("lngInput").value = point.lng;
   updateStats(point);
-
   state.map.setCenter(next);
   state.marker.setPosition(next);
 
-  syncAE({
+  toAE({
     type: "LIVE_TRACK",
     lat: point.lat,
     lng: point.lng,
@@ -101,7 +99,7 @@ function tickLive() {
     timestamp: Date.now()
   });
 
-  state.index += 1;
+  state.routeIndex += 1;
 }
 
 function initMap() {
@@ -132,9 +130,10 @@ function initMap() {
   });
 
   buildRoute();
-  updateStats(state.route[0]);
+  updateStats(route[0]);
 
   document.getElementById("applyBtn").addEventListener("click", applyMapControls);
+  document.getElementById("routeBtn").addEventListener("click", () => toAE({ type: "ROUTE_EXPORT", route }));
   document.getElementById("terrainToggle").addEventListener("change", setMapType);
   document.getElementById("satelliteToggle").addEventListener("change", setMapType);
 
@@ -144,7 +143,7 @@ function initMap() {
   });
 
   document.getElementById("exportBtn").addEventListener("click", () => {
-    syncAE({
+    toAE({
       type: "EXPORT",
       lat: Number(document.getElementById("latInput").value),
       lng: Number(document.getElementById("lngInput").value),
@@ -166,6 +165,12 @@ window.addEventListener("load", () => {
 
 window.__AEBridge = {
   send: (payload) => {
-    console.log("AE payload:", payload);
+    if (typeof window.CSInterface !== "undefined") {
+      const cs = new window.CSInterface();
+      cs.evalScript(`sendGeoData(${JSON.stringify(payload)})`);
+      return;
+    }
+
+    console.log("Browser preview mode. AE bridge not active:", payload);
   }
 };
